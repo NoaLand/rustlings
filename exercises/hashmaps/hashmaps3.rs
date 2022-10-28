@@ -14,8 +14,6 @@
 
 // Execute `rustlings hint hashmaps3` or use the `hint` watch subcommand for a hint.
 
-// I AM NOT DONE
-
 use std::collections::HashMap;
 
 // A structure to store team name and its goal details.
@@ -29,6 +27,30 @@ fn build_scores_table(results: String) -> HashMap<String, Team> {
     // The name of the team is the key and its associated struct is the value.
     let mut scores: HashMap<String, Team> = HashMap::new();
 
+    // --------------------------------------------------
+    // solution 1: init map first, and do calculate
+    // for r in results.lines() {
+    //     let v: Vec<&str> = r.split(',').collect();
+    //     let team_1_name = v[0].to_string();
+    //     let team_2_name = v[1].to_string();
+    //     if !scores.contains_key(&team_1_name) {
+    //         scores.insert(team_1_name.clone(), Team {
+    //             name: team_1_name.clone(),
+    //             goals_scored: 0,
+    //             goals_conceded: 0,
+    //         });
+    //     }
+
+    //     if !scores.contains_key(&team_2_name) {
+    //         scores.insert(team_2_name.clone(), Team {
+    //             name: team_2_name.clone(),
+    //             goals_scored: 0,
+    //             goals_conceded: 0,
+    //         });
+    //     }
+    // }
+    // --------------------------------------------------
+
     for r in results.lines() {
         let v: Vec<&str> = r.split(',').collect();
         let team_1_name = v[0].to_string();
@@ -40,6 +62,41 @@ fn build_scores_table(results: String) -> HashMap<String, Team> {
         // will be number of goals conceded from team_2, and similarly
         // goals scored by team_2 will be the number of goals conceded by
         // team_1.
+
+        // --------------------------------------------------
+        // solution 1
+        // if let Some(team) = scores.get_mut(&team_1_name) {
+        //     (*team).goals_scored += team_1_score;
+        //     (*team).goals_conceded += team_2_score;
+        // }
+
+        // if let Some(team) = scores.get_mut(&team_2_name) {
+        //     (*team).goals_scored += team_2_score;
+        //     (*team).goals_conceded += team_1_score;
+        // }
+        // --------------------------------------------------
+
+
+        // --------------------------------------------------
+        // solution 2: use hashmap entry
+        scores.entry(team_1_name).and_modify(|team| {
+            (*team).goals_scored += team_1_score;
+            (*team).goals_conceded += team_2_score;
+        }).or_insert_with_key(|team_name| Team {
+            name: team_name.to_string(),
+            goals_scored: team_1_score,
+            goals_conceded: team_2_score,
+        });
+
+        scores.entry(team_2_name).and_modify(|team| {
+            (*team).goals_scored += team_2_score;
+            (*team).goals_conceded += team_1_score;
+        }).or_insert_with_key(|team_name| Team {
+            name: team_name.to_string(),
+            goals_scored: team_2_score,
+            goals_conceded: team_1_score,
+        });
+        // --------------------------------------------------
     }
     scores
 }
